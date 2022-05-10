@@ -2,9 +2,11 @@ package userPackage
 
 import "fmt"
 
+const USER_TYPE string = "natural"
+
 type User struct {
 	Name     string
-	Age      uint32
+	Lastname string
 	UserType string
 }
 
@@ -16,4 +18,14 @@ func (AnUser User) Introduction() string {
 
 func (AnUser *User) SetName(newName string) {
 	AnUser.Name = newName
+}
+
+func UseStructs() {
+	person1 := User{Name: "Pepe", Lastname: "Perez", UserType: USER_TYPE}
+
+	fmt.Println(person1)
+
+	person1.Introduction()
+	person1.SetName("Juan")
+	person1.Introduction()
 }
