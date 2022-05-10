@@ -22,11 +22,9 @@ func fRoutine(from string) {
 }
 
 func Routine() {
-	wg.Add(1)
+	wg.Add(3)
 	go f("goroutine")
-	wg.Add(1)
 	go f("direct")
-	wg.Add(1)
 	go func(msg string) {
 		defer wg.Done()
 		fmt.Println("in anonymous function")
