@@ -21,7 +21,8 @@ func fRoutine(from string) {
 	}
 }
 
-func Routine() {
+func Routine(gwg *sync.WaitGroup) {
+	defer gwg.Done()
 	wg.Add(3)
 	go f("goroutine")
 	go f("direct")

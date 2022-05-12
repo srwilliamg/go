@@ -1,6 +1,9 @@
 package userPackage
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+)
 
 const USER_TYPE string = "natural"
 
@@ -20,7 +23,8 @@ func (AnUser *User) SetName(newName string) {
 	AnUser.Name = newName
 }
 
-func UseStructs() {
+func UseStructs(wg *sync.WaitGroup) {
+	defer wg.Done()
 	person1 := User{Name: "Pepe", Lastname: "Perez", UserType: USER_TYPE}
 
 	fmt.Println(person1)
