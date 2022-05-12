@@ -7,6 +7,7 @@ import (
 	routineTest "go/test/modules/routine"
 	sliceTest "go/test/modules/slice"
 	userPk "go/test/modules/user"
+	"runtime"
 	"sync"
 )
 
@@ -19,6 +20,10 @@ func notTheNumber(arg int) (int, error) {
 }
 
 func main() {
+
+	fmt.Println(runtime.NumCPU())
+	runtime.GOMAXPROCS(4)
+
 	for _, v := range []int{7, 42} {
 		if r, e := notTheNumber(v); e != nil {
 			fmt.Println("notTheNumber failed:", e)
