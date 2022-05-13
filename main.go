@@ -3,9 +3,11 @@ package main
 import (
 	"errors"
 	"fmt"
+	channelsTest "go/test/modules/channels"
 	mapTest "go/test/modules/maps"
 	routineTest "go/test/modules/routine"
 	sliceTest "go/test/modules/slice"
+	UnbufferedChannelsTest "go/test/modules/unbufferedChannels"
 	userPk "go/test/modules/user"
 	"runtime"
 	"sync"
@@ -32,12 +34,21 @@ func main() {
 		}
 	}
 
-	testsSlice := []func(*sync.WaitGroup){
+	tempTestsSlice := []func(*sync.WaitGroup){
 		userPk.UseStructs,
 		routineTest.Routine,
 		sliceTest.RunSliceTest,
 		mapTest.MapTests,
+		channelsTest.ChannelsTest,
 	}
+
+	fmt.Println("tempTestsSlice:", tempTestsSlice)
+
+	testsSlice := []func(*sync.WaitGroup){
+		UnbufferedChannelsTest.UnbufferedChannelsTest,
+	}
+
+	// testsSlice = append(testsSlice, tempTestsSlice...)
 
 	var wg sync.WaitGroup
 	wg.Add(len(testsSlice))
