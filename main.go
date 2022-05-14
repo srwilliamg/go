@@ -10,6 +10,7 @@ import (
 	sliceTest "go/test/modules/slice"
 	UnbufferedChannelsTest "go/test/modules/unbufferedChannels"
 	userPk "go/test/modules/user"
+	workTest "go/test/modules/work"
 	"runtime"
 	"sync"
 )
@@ -27,12 +28,13 @@ func main() {
 		channelsTest.ChannelsTest,
 		UnbufferedChannelsTest.UnbufferedChannelsTest,
 		runnerTest.RunRunnerTest,
+		pollingTest.PollingTest,
 	}
 
 	fmt.Println("tempTestsSlice:", tempTestsSlice)
 
 	testsSlice := []func(*sync.WaitGroup){
-		pollingTest.PollingTest,
+		workTest.WorkTests,
 	}
 
 	// testsSlice = append(testsSlice, tempTestsSlice...)
