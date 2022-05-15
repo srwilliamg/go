@@ -3,8 +3,11 @@
 package work
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"path/filepath"
 	"sync"
 	"time"
 )
@@ -12,7 +15,7 @@ import (
 // Worker must be implemented by types that want to use
 // the work pool.
 type Worker interface {
-	TaskType() string
+	GetTaskType() string
 	Task()
 }
 
@@ -80,7 +83,7 @@ func New(maxGoroutines int, workerTypes []WorkerType) *PollManager {
 // Run submits work to the pool.
 func (p *PollManager) Run(w Worker) {
 	for _, pool := range p.Pools {
-		if pool.workerType.typeSync == w.TaskType() {
+		if pool.workerType.typeSync == w.GetTaskType() {
 			pool.work <- w
 		}
 	}
@@ -94,89 +97,40 @@ func (p *PollManager) Shutdown() {
 	p.Wg.Wait()
 }
 
-// names provides a set of names to display.
-var names = []namePrinter{
-	{name: "Morten", taskType: "standard"},
-	{name: "Abigael", taskType: "standard"},
-	{name: "Park", taskType: "standard"},
-	{name: "Kalvin", taskType: "standard"},
-	{name: "Kleon", taskType: "standard"},
-	{name: "Jerry", taskType: "standard"},
-	{name: "Emerson", taskType: "standard"},
-	{name: "Teddy", taskType: "standard"},
-	{name: "Anestassia", taskType: "standard"},
-	{name: "Brenn", taskType: "standard"},
-	{name: "Loralie", taskType: "standard"},
-	{name: "Kelwin", taskType: "standard"},
-	{name: "Kimble", taskType: "standard"},
-	{name: "Arleta", taskType: "standard"},
-	{name: "Juieta", taskType: "standard"},
-	{name: "Giustino", taskType: "standard"},
-	{name: "Carita", taskType: "standard"},
-	{name: "Kelbee", taskType: "standard"},
-	{name: "Dosi", taskType: "standard"},
-	{name: "Davidson", taskType: "standard"},
-	{name: "Orv", taskType: "standard"},
-	{name: "Davin", taskType: "standard"},
-	{name: "Kandy", taskType: "standard"},
-	{name: "Elie", taskType: "standard"},
-	{name: "Alaster", taskType: "standard"},
-	{name: "Terence", taskType: "standard"},
-	{name: "Debee", taskType: "standard"},
-	{name: "Neall", taskType: "standard"},
-	{name: "Frieda", taskType: "standard"},
-	{name: "Shelden", taskType: "standard"},
-	{name: "Brina", taskType: "standard"},
-	{name: "Thomas", taskType: "standard"},
-	{name: "Niall", taskType: "standard"},
-	{name: "Vincents", taskType: "standard"},
-	{name: "Ewart", taskType: "standard"},
-	{name: "Randall", taskType: "standard"},
-	{name: "Jandy", taskType: "standard"},
-	{name: "Page", taskType: "standard"},
-	{name: "Manda", taskType: "standard"},
-	{name: "Marcia", taskType: "standard"},
-	{name: "Torie", taskType: "standard"},
-	{name: "Raymond", taskType: "standard"},
-	{name: "Roderic", taskType: "standard"},
-	{name: "Vaclav", taskType: "standard"},
-	{name: "Vinita", taskType: "standard"},
-	{name: "Cy", taskType: "standard"},
-	{name: "Rafa", taskType: "standard"},
-	{name: "Wynny", taskType: "standard"},
-	{name: "Dunstan", taskType: "standard"},
-	{name: "Nero", taskType: "standard"},
-	{name: "Curt-Most-Important", taskType: "most important"},
-	{name: "Chancey", taskType: "standard"},
-	{name: "Kinny", taskType: "standard"},
-	{name: "York", taskType: "standard"},
-	{name: "Charis", taskType: "standard"},
-	{name: "Stevana", taskType: "standard"},
-	{name: "Gilemette-Important", taskType: "important"},
-	{name: "Christyna-Important", taskType: "important"},
-	{name: "Galen-Most-Important", taskType: "most important"},
-	{name: "Jeanne-Important", taskType: "important"},
-}
-
 // namePrinter provides special support for printing names.
 type namePrinter struct {
-	name     string
-	taskType string
+	Name     string `json:"name"`
+	TaskType string `json:"task_type"`
 }
 
 // Task implements the Worker interface.
 func (m *namePrinter) Task() {
-	log.Println(m.name)
+	log.Println(m.Name)
 	time.Sleep(time.Second)
 }
 
-func (m *namePrinter) TaskType() string {
-	return m.taskType
+func (m *namePrinter) GetTaskType() string {
+	return m.TaskType
 }
 
 // main is the entry point for all Go programs.
 func WorkTests(wgg *sync.WaitGroup) {
 	defer wgg.Done()
+
+	path := filepath.Join("data", "name-type.json")
+	jsonFile, err := ioutil.ReadFile(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("jsonFile: %v\n", jsonFile)
+
+	var names []*namePrinter
+
+	err = json.Unmarshal(jsonFile, &names)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	workerTypes := []WorkerType{{typeSync: "important", quantity: 10}, {typeSync: "most important", quantity: 5}}
 	// Create a work pool with 2 goroutines.
@@ -194,7 +148,7 @@ func WorkTests(wgg *sync.WaitGroup) {
 			// returns we know it is being handled.
 			pm.Run(&np)
 			wg.Done()
-		}(np)
+		}(*np)
 	}
 	// }
 
